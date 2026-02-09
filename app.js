@@ -5,6 +5,9 @@ const path = require('path');
 const app = express();
 const port = process.env.PORT || 3000;
 
+const { format } = require('date-fns');
+const { de } = require('date-fns/locale');
+
 
 // 1. ZUERST DIE DATENBANK
 const pool = mysql.createPool({
@@ -28,6 +31,12 @@ api.get('/db-test', async (req, res) => {
 
 api.get('/test-env', (req, res) => {
     res.json({ secret: process.env.GEHEIMNIS });
+});
+
+api.get('/server-time', (req, res) => {
+    const now = new Date();
+    const formattedDate = format(now, "EEEE, do MMMM yyyy, HH:mm:ss 'Uhr'", { locale: de });
+    res.json({ time: formattedDate });
 });
 
 api.get('/', (req, res) => {
