@@ -1,0 +1,31 @@
+#RewriteEngine On
+# Verhindert, dass Apache versucht, echte Ordner/Dateien zu finden
+#RewriteCond %{REQUEST_FILENAME} !-f
+#RewriteCond %{REQUEST_FILENAME} !-d
+# Leitet alles an die Node.js-Anwendung weiter
+#RewriteRule ^(.*)$ app.js/$1 [L]
+
+#PassengerEnabled on
+#PassengerAppRoot /var/www/vhosts/DEINE_NUTZER_ID/httpdocs/webseite1
+#RewriteEngine On
+#RewriteCond %{REQUEST_FILENAME} !-f
+#RewriteRule ^(.*)$ app.js/$1 [QSA,L]
+
+# Falls ngnix erweiterte Einstellungen zB. bei einem Webhosting Provider
+# nicht möglich sind und das Ausführen des Backendes in wege stehen
+# da aus Sicherheitsgründen public Ordner als Stammverzeichniss dieser Webseite ist
+# Dann auch diese .htaccess Datei als Retungsancker für Backend
+# Ansonsten ngnix/appache entsprechend Einstellen 
+RewriteEngine On
+RewriteBase /
+
+# Wenn es eine echte Datei oder ein Ordner ist, liefere sie aus (Frontend)
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# Ignoriere alles, was mit /api beginnt (Lass Node.js entscheiden)
+RewriteRule ^api/ - [L]
+
+# Alles andere an die index.html für React-Routing
+RewriteRule ^ index.html [L]
