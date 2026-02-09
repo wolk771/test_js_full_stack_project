@@ -1,7 +1,26 @@
+import { useState } from 'react';
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
 
+
 function Home() { return <h2>Frontend Home</h2>; }
-function Dashboard() { return <h2>Dashboard Bereich</h2>; }
+function Dashboard() { 
+  const [serverTime, setServerTime] = useState("");
+    const fetchTime = async () => {
+  const response = await fetch('/api/server-time');
+  const data = await response.json();
+  setServerTime(data.time);
+};
+
+  
+  return (
+<>
+ <button onClick={fetchTime}>Serverzeit abfragen</button>
+ {serverTime && <p>Antwort vom Server: {serverTime}</p>}
+<h2>Dashboard Bereich</h2>
+</>
+ 
+); 
+}
 
 export default function App() {
   return (
