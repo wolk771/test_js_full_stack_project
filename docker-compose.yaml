@@ -1,0 +1,24 @@
+services:
+  db:
+    image: mysql:latest
+    container_name: test-fullstack-js-db
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASS}
+    ports:
+      - "3306:3306"
+    volumes:
+      # Dieser Name MUSS unten unter 'volumes:' stehen
+      - db_fullstack_data:/var/lib/mysql
+
+  adminer:
+    image: adminer
+    container_name: test-fullstack-js-adminer
+    ports:
+      - "8080:8080"
+
+# DAS HIER IST DAS "TOP LEVEL"
+volumes:
+  db_fullstack_data:
