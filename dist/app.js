@@ -41,6 +41,7 @@ const express_1 = __importStar(require("express"));
 const promise_1 = __importDefault(require("mysql2/promise"));
 const path_1 = __importDefault(require("path"));
 const SystemController_1 = require("./controllers/SystemController");
+const DatabaseController_1 = require("./controllers/DatabaseController");
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 const port = Number(process.env.PORT) || 3000;
@@ -52,19 +53,9 @@ const pool = promise_1.default.createPool({
     port: Number(process.env.DB_PORT) || 3306
 });
 const api = (0, express_1.Router)();
-api.get('/db-test', async (_req, res) => {
-    try {
-        const [rows] = await pool.query('SELECT VERSION() as v');
-        res.json({ status: "success", mysql: rows[0].v });
-    }
-    catch (e) {
-        res.json({ error: e.message });
-    }
-});
-api.get('/test-env', (_req, res) => {
-    res.json({ secret: process.env.GEHEIMNIS });
-});
+api.get('/db-test', (req, res) => DatabaseController_1.DatabaseController.testConnection(pool, req, res));
 api.get('/server-time', SystemController_1.SystemController.getServerTime);
+api.get('/test-env', SystemController_1.SystemController.testEnv);
 api.get('/', SystemController_1.SystemController.getStatus);
 app.use('/api', api);
 const publicPath = path_1.default.join(__dirname, '..', 'public');

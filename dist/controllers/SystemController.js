@@ -23,5 +23,15 @@ class SystemController {
         };
         res.json(response);
     }
+    static testEnv(_req, res) {
+        const response = {
+            status: 'success',
+            message: 'Umgebungsvariablen-Check',
+            data: {
+                secret: process.env.GEHEIMNIS || 'Nicht gesetzt'
+            }
+        };
+        res.json(response);
+    }
 }
 exports.SystemController = SystemController;

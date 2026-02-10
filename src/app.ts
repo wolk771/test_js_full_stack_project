@@ -3,17 +3,13 @@ import express, { Request, Response, Router } from 'express';
 import mysql from 'mysql2/promise';
 import path from 'path';
 
-// in controller
-// import { format } from 'date-fns';
-// import { de } from 'date-fns/locale';
-
 import { SystemController } from './controllers/SystemController';
+import { DatabaseController } from './controllers/DatabaseController';
 
 dotenv.config();
 
 const app = express();
 const port: number = Number(process.env.PORT) || 3000;
-
 
 // 1. DATENBANK POOL
 const pool = mysql.createPool({
@@ -26,29 +22,16 @@ const pool = mysql.createPool({
 
 const api: Router = Router();
 
-// 2. API ENDPUNKTE
-api.get('/db-test', async (_req: Request, res: Response) => {
-    try {
-        const [rows] = await pool.query('SELECT VERSION() as v') as any[];
-        res.json({ status: "success", mysql: rows[0].v });
-    } catch (e: any) { res.json({ error: e.message }); }
-});
-
-api.get('/test-env', (_req: Request, res: Response) => {
-    res.json({ secret: process.env.GEHEIMNIS });
-});
-
-//mit Controller
+// 2. API-ROUTING (Alle Logik ist jetzt in Controllern)
+api.get('/db-test', (req, res) => DatabaseController.testConnection(pool, req, res));
 api.get('/server-time', SystemController.getServerTime);
+api.get('/test-env', SystemController.testEnv); // Jetzt sauber im SystemController
 api.get('/', SystemController.getStatus);
 
-// Hier binden wir den Router ein
 app.use('/api', api);
 
 // 3. STATISCHE DATEIEN & SPA-ROUTING
-// Wichtig: '..' um aus /src eine Ebene höher zu kommen
 const publicPath = path.join(__dirname, '..', 'public');
-
 app.use(express.static(publicPath));
 
 app.get('*', (_req: Request, res: Response) => {
@@ -58,4 +41,3 @@ app.get('*', (_req: Request, res: Response) => {
 app.listen(port, () => {
     console.log(`Server läuft auf http://localhost:${port}`);
 });
-

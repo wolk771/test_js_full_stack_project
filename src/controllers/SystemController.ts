@@ -33,4 +33,19 @@ export class SystemController {
         };
         res.json(response);
     }
+
+     /**
+     * Prüft, ob Umgebungsvariablen korrekt geladen werden (nur für Testzwecke)
+     * Später entfernen!
+     */
+    public static testEnv(_req: Request, res: Response): void {
+        const response: ApiResponse = {
+            status: 'success',
+            message: 'Umgebungsvariablen-Check',
+            data: {
+                secret: process.env.GEHEIMNIS || 'Nicht gesetzt'
+            }
+        };
+        res.json(response);
+    }
 }
