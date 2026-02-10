@@ -1,0 +1,30 @@
+{
+  "compilerOptions": {
+    /* 1. Basis-Einstellungen */
+    "target": "ES2020",                   // Moderner JS-Standard, den Node 20 perfekt versteht
+    "module": "CommonJS",                 // Standard für Node.js/Express (sehr stabil auf Webhosting)
+    "lib": ["ES2020"],                    // Welche JS-Bibliotheken verfügbar sind
+    "allowJs": true,                      // Erlaubt JS und TS Dateien zu mischen
+    
+    /* 2. Projekt-Struktur (Extrem wichtig!) */
+    "rootDir": "./src",                   // Hier Code
+    "outDir": "./dist",                   // Hier landet das "gebaute" JS für den Server
+    "removeComments": true,               // Macht die Dateien im dist-Ordner kleiner
+    
+    /* 3. Strenge Prüfungen (Für die hohe Qualität) */
+    "strict": true,                       // Aktiviert alle Sicherheitsprüfungen
+    "noImplicitAny": true,                // Verhindert Variablen ohne Typ
+    "noUnusedLocals": true,               // Meckert bei ungenutzten Variablen
+    "noUnusedParameters": true,           // Meckert bei ungenutzten Funktions-Parametern
+    
+    /* 4. Modul-Auflösung */
+    "moduleResolution": "node",           // Wie TS nach Paketen in node_modules sucht
+    "esModuleInterop": true,              // Erlaubt saubere Imports von JS-Paketen wie Express
+    "resolveJsonModule": true,            // Erlaubt das Importieren von .json Dateien
+    "skipLibCheck": true,                 // Beschleunigt den Build-Prozess
+    "forceConsistentCasingInFileNames": true // Wichtig für Windows (dev) vs. Linux (prod) Unterschied
+  },
+  "include": ["src/**/*"],                // Nur Code im src-Ordner beachten
+  "exclude": ["node_modules", "frontend"] // Diese Ordner völlig ignorieren
+}
+
