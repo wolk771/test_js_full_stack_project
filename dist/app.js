@@ -40,8 +40,7 @@ const dotenv_1 = __importDefault(require("dotenv"));
 const express_1 = __importStar(require("express"));
 const promise_1 = __importDefault(require("mysql2/promise"));
 const path_1 = __importDefault(require("path"));
-const date_fns_1 = require("date-fns");
-const locale_1 = require("date-fns/locale");
+const SystemController_1 = require("./controllers/SystemController");
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 const port = Number(process.env.PORT) || 3000;
@@ -65,14 +64,8 @@ api.get('/db-test', async (_req, res) => {
 api.get('/test-env', (_req, res) => {
     res.json({ secret: process.env.GEHEIMNIS });
 });
-api.get('/server-time', (_req, res) => {
-    const now = new Date();
-    const formattedDate = (0, date_fns_1.format)(now, "EEEE, do MMMM yyyy, HH:mm:ss 'Uhr'", { locale: locale_1.de });
-    res.json({ time: formattedDate });
-});
-api.get('/', (_req, res) => {
-    res.json({ info: "API Root funktioniert" });
-});
+api.get('/server-time', SystemController_1.SystemController.getServerTime);
+api.get('/', SystemController_1.SystemController.getStatus);
 app.use('/api', api);
 const publicPath = path_1.default.join(__dirname, '..', 'public');
 app.use(express_1.default.static(publicPath));

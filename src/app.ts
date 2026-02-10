@@ -2,8 +2,12 @@ import dotenv from 'dotenv';
 import express, { Request, Response, Router } from 'express';
 import mysql from 'mysql2/promise';
 import path from 'path';
-import { format } from 'date-fns';
-import { de } from 'date-fns/locale';
+
+// in controller
+// import { format } from 'date-fns';
+// import { de } from 'date-fns/locale';
+
+import { SystemController } from './controllers/SystemController';
 
 dotenv.config();
 
@@ -34,15 +38,9 @@ api.get('/test-env', (_req: Request, res: Response) => {
     res.json({ secret: process.env.GEHEIMNIS });
 });
 
-api.get('/server-time', (_req: Request, res: Response) => {
-    const now = new Date();
-    const formattedDate = format(now, "EEEE, do MMMM yyyy, HH:mm:ss 'Uhr'", { locale: de });
-    res.json({ time: formattedDate });
-});
-
-api.get('/', (_req: Request, res: Response) => {
-    res.json({ info: "API Root funktioniert" });
-});
+//mit Controller
+api.get('/server-time', SystemController.getServerTime);
+api.get('/', SystemController.getStatus);
 
 // Hier binden wir den Router ein
 app.use('/api', api);
