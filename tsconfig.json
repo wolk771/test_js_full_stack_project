@@ -7,7 +7,7 @@
     "allowJs": true,                      // Erlaubt JS und TS Dateien zu mischen
     
     /* 2. Projekt-Struktur (Extrem wichtig!) */
-    "rootDir": "./src",                   // Hier Code
+    "rootDir": "./src",                   // Focus auf /src -> für JS in /dist direkt
     "outDir": "./dist",                   // Hier landet das "gebaute" JS für den Server
     "removeComments": true,               // Macht die Dateien im dist-Ordner kleiner
     
@@ -24,7 +24,13 @@
     "skipLibCheck": true,                 // Beschleunigt den Build-Prozess
     "forceConsistentCasingInFileNames": true // Wichtig für Windows (dev) vs. Linux (prod) Unterschied
   },
-  "include": ["src/**/*"],                // Nur Code im src-Ordner beachten
-  "exclude": ["node_modules", "frontend"] // Diese Ordner völlig ignorieren
+  "include": [
+    "src/**/*" 
+  ], // Backend Code
+  "exclude": [
+    "node_modules", // Installs
+    "frontend", // React Frontend mit eigener Konfiguration
+    "dist" // Bereits kompilierter Code
+  ] // Diese Ordner völlig ignorieren!
 }
 
