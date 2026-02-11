@@ -7,8 +7,11 @@ function Dashboard() {
   const [serverTime, setServerTime] = useState("");
     const fetchTime = async () => {
   const response = await fetch('/api/server-time');
-  const data = await response.json();
-  setServerTime(data.time);
+  const result = await response.json();
+    // entsprechend dem Interface in backend
+    if (result.status === 'success' && result.data) {
+        setServerTime(result.data.time);
+    }
 };
 
   
