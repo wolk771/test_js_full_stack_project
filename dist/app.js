@@ -38,22 +38,18 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const dotenv_1 = __importDefault(require("dotenv"));
 const express_1 = __importStar(require("express"));
-const promise_1 = __importDefault(require("mysql2/promise"));
 const path_1 = __importDefault(require("path"));
+const knex_1 = __importDefault(require("knex"));
+const knexConfig = require('../knexfile');
 const SystemController_1 = require("./controllers/SystemController");
 const DatabaseController_1 = require("./controllers/DatabaseController");
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 const port = Number(process.env.PORT) || 3000;
-const pool = promise_1.default.createPool({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASS,
-    database: process.env.DB_NAME,
-    port: Number(process.env.DB_PORT) || 3306
-});
+const environment = process.env.NODE_ENV || 'development';
+const db = (0, knex_1.default)(knexConfig[environment]);
 const api = (0, express_1.Router)();
-api.get('/db-test', (req, res) => DatabaseController_1.DatabaseController.testConnection(pool, req, res));
+api.get('/db-test', (req, res) => DatabaseController_1.DatabaseController.testConnection(db, req, res));
 api.get('/server-time', SystemController_1.SystemController.getServerTime);
 api.get('/test-env', SystemController_1.SystemController.testEnv);
 api.get('/', SystemController_1.SystemController.getStatus);
@@ -63,6 +59,14 @@ app.use(express_1.default.static(publicPath));
 app.get('*', (_req, res) => {
     res.sendFile(path_1.default.join(publicPath, 'index.html'));
 });
-app.listen(port, () => {
-    console.log(`Server läuft auf http://localhost:${port}`);
+db.migrate.latest()
+    .then(() => {
+    console.log('🚀 Datenbank-Schema im Container ist aktuell.');
+    app.listen(port, () => {
+        console.log(`🌍 Server läuft auf http://localhost:${port}`);
+    });
+})
+    .catch((err) => {
+    console.error('❌ Fehler bei der Migration:', err);
+    process.exit(1);
 });

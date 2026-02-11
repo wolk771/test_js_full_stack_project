@@ -6,7 +6,8 @@
     "date-fns": "^4.1.0",
     "dotenv": "^16.0.0",
     "express": "^4.18.2",
-    "mysql2": "^3.9.0"
+    "knex": "^3.1.0",
+    "mysql2": "^3.17.0"
   },
   "scripts": {
     "start": "node app.js",
@@ -20,7 +21,7 @@
   "devDependencies": {
     "@types/dotenv": "^6.1.1",
     "@types/express": "^5.0.6",
-    "@types/node": "^25.2.2",
+    "@types/node": "^25.2.3",
     "nodemon": "^3.1.11",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
