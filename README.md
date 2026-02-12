@@ -21,6 +21,8 @@ Das Projekt folgt dem Prinzip der **Separation of Concerns**:
 - **Frontend:** React (Vite). Das kompilierte Bundle wird im `public/`-Ordner des Backends ausgeliefert.
 - **Datenbank:** Knex.js als Query Builder & Migrations-Tool.
 - **Interfaces:** Zentraler Vertrag für API-Antworten in `src/interfaces/ApiResponse.ts`.
+- **Sicherheit:** JWT-basierte Authentifizierung mit einer `protect`-Middleware im Backend und einem `apiClient`-Wrapper im Frontend.
+
 
 ## ⚙️ Build-Prozess & Pipeline
 Um Rechteprobleme und Ressourcenengpässe auf dem Webhosting zu vermeiden, gilt: **Local Build - Remote Deploy**.
@@ -71,4 +73,8 @@ Damit Knex die Pfade der production-Umgebung nutzt (JS-Migrationen aus dist/ sta
 *   **MySQL Versionen:** Für Konsistenz zwischen Local-Dev und Plesk wird lokal **MySQL 8.4 LTS** verwendet. Dies vermeidet Inkompatibilitäten mit den neueren Innovation-Releases (9.x) und harmoniert perfekt mit dem netcup-Standard (8.0.x).
 *   **TypeScript Root-Control:** In der `tsconfig.json` ist `rootDir: "./src"` gesetzt. Dies erzwingt eine flache Struktur im `dist/`-Ordner und verhindert eine ungewollte Verschachtelung wie `dist/src/app.js`.
 *   **Plesk-Git-Workflow:** Da `npm`-Befehle innerhalb der Plesk-Git-Aktionen oft Pfad-Probleme verursachen, wird die Automatisierung dort auf `touch tmp/restart.txt` beschränkt. Alle Builds (TSC/Vite) werden lokal finalisiert und als Artefakte übertragen. Bei der Installation neuer Packages muss dies manuell im Plesk (NPM-Installation Button) ausgeführt werden.
+*   **JWT-Authentifizierung:** Tokens werden im `sessionStorage` des Browsers verwaltet. Dies bietet einen Kompromiss zwischen Benutzerkomfort und Sicherheit (Token wird beim Schließen des Tabs gelöscht).
+*   **API-Wrapper:** Durch den `apiClient` im Frontend wird das JWT-Token automatisch bei jedem Request in den Header (`Authorization: Bearer <token>`) injiziert, sofern vorhanden.
+*   **Status-Synchronität:** Das Backend führt bei jedem Start einen Integritäts-Check via `AuthService` durch, um sicherzustellen, dass das System niemals ohne Administrator bleibt.
+
 

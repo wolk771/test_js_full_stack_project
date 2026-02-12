@@ -10,9 +10,16 @@ import { AuthService } from './services/AuthService';
 import { SystemController } from './controllers/SystemController';
 import { DatabaseController } from './controllers/DatabaseController';
 
+// auth
+import { AuthController } from './controllers/AuthController';
+import { protect } from './middleware/authMiddleware';
+import helmet from 'helmet';
+
+
 dotenv.config();
 
 const app = express();
+app.use(helmet());
 const port: number = Number(process.env.PORT) || 3000;
 
 // 1. KNEX INITIALISIERUNG
@@ -22,12 +29,18 @@ const db = knex(knexConfig[environment]);
 
 // 2. API-ROUTING (Definition)
 const api: Router = Router();
+
+// 1. Login ist öffentlich
+api.post('/login', express.json(), (req, res) => AuthController.login(db, req, res));
+
+// 2. User-Stats ist jetzt GESCHÜTZT (nur mit Token erreichbar)
+api.get('/user-stats', protect, (req, res) => SystemController.getUserStats(db, req, res));
+
 api.get('/db-test', (req, res) => DatabaseController.testConnection(db, req, res));
 api.get('/server-time', SystemController.getServerTime);
 api.get('/test-env', SystemController.testEnv);
 api.get('/', SystemController.getStatus);
 
-api.get('/user-stats', (req, res) => SystemController.getUserStats(db, req, res));
 
 
 app.use('/api', api);
