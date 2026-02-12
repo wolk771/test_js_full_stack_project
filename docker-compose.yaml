@@ -1,6 +1,6 @@
 services:
   db:
-    image: mysql:latest
+    image: mysql:8.4  # Fixierte Long-Term-Support Version
     container_name: test-fullstack-js-db
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}

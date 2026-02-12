@@ -41,6 +41,7 @@ const express_1 = __importStar(require("express"));
 const path_1 = __importDefault(require("path"));
 const knex_1 = __importDefault(require("knex"));
 const knexConfig = require('../knexfile');
+const AuthService_1 = require("./services/AuthService");
 const SystemController_1 = require("./controllers/SystemController");
 const DatabaseController_1 = require("./controllers/DatabaseController");
 dotenv_1.default.config();
@@ -53,6 +54,7 @@ api.get('/db-test', (req, res) => DatabaseController_1.DatabaseController.testCo
 api.get('/server-time', SystemController_1.SystemController.getServerTime);
 api.get('/test-env', SystemController_1.SystemController.testEnv);
 api.get('/', SystemController_1.SystemController.getStatus);
+api.get('/user-stats', (req, res) => SystemController_1.SystemController.getUserStats(db, req, res));
 app.use('/api', api);
 const publicPath = path_1.default.join(__dirname, '..', 'public');
 app.use(express_1.default.static(publicPath));
@@ -60,13 +62,21 @@ app.get('*', (_req, res) => {
     res.sendFile(path_1.default.join(publicPath, 'index.html'));
 });
 db.migrate.latest()
-    .then(() => {
+    .then(async () => {
+    try {
+        await AuthService_1.AuthService.ensureAdminIntegrity(db);
+        console.log('✅ System-Integrität (Admin-Check) geprüft.');
+    }
+    catch (authError) {
+        console.error('❌ Fehler beim Integritäts-Check:', authError);
+        process.exit(1);
+    }
     console.log('🚀 Datenbank-Schema im Container ist aktuell.');
     app.listen(port, () => {
         console.log(`🌍 Server läuft auf http://localhost:${port}`);
     });
 })
     .catch((err) => {
-    console.error('❌ Fehler bei der Migration:', err);
+    console.error('❌ Kritischer Fehler bei der Migration oder System-Start:', err);
     process.exit(1);
 });

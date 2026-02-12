@@ -3,8 +3,9 @@ import express, { Request, Response, Router } from 'express';
 import path from 'path';
 import knex from 'knex';
 // Configuration von knexfile.js anstatt ts nur mit require
-const knexConfig = require('../knexfile'); 
+const knexConfig = require('../knexfile');
 // import knexConfig from '../knexfile'; // mit .ts 
+import { AuthService } from './services/AuthService';
 
 import { SystemController } from './controllers/SystemController';
 import { DatabaseController } from './controllers/DatabaseController';
@@ -18,12 +19,16 @@ const port: number = Number(process.env.PORT) || 3000;
 const environment = process.env.NODE_ENV || 'development';
 const db = knex(knexConfig[environment]);
 
+
 // 2. API-ROUTING (Definition)
 const api: Router = Router();
 api.get('/db-test', (req, res) => DatabaseController.testConnection(db, req, res));
 api.get('/server-time', SystemController.getServerTime);
 api.get('/test-env', SystemController.testEnv);
 api.get('/', SystemController.getStatus);
+
+api.get('/user-stats', (req, res) => SystemController.getUserStats(db, req, res));
+
 
 app.use('/api', api);
 
@@ -37,13 +42,25 @@ app.get('*', (_req: Request, res: Response) => {
 
 // 4. START-SEQUENZ
 db.migrate.latest()
-    .then(() => {
+    .then(async () => { //
+
+        try {
+            // Integritäts-Check via Service
+            await AuthService.ensureAdminIntegrity(db);
+            console.log('✅ System-Integrität (Admin-Check) geprüft.');
+        } catch (authError) {
+            console.error('❌ Fehler beim Integritäts-Check:', authError);
+            // App wird nicht gestartet, wenn der Admin fehlt.
+            process.exit(1);
+        }
+
         console.log('🚀 Datenbank-Schema im Container ist aktuell.');
+
         app.listen(port, () => {
             console.log(`🌍 Server läuft auf http://localhost:${port}`);
         });
     })
     .catch((err) => {
-        console.error('❌ Fehler bei der Migration:', err);
-        process.exit(1); 
+        console.error('❌ Kritischer Fehler bei der Migration oder System-Start:', err);
+        process.exit(1);
     });

@@ -33,5 +33,26 @@ class SystemController {
         };
         res.json(response);
     }
+    static async getUserStats(db, _req, res) {
+        try {
+            const countResult = await db('app_users').count('id as total');
+            const totalUsers = countResult[0].total;
+            const response = {
+                status: 'success',
+                message: 'Benutzerstatistik erfolgreich abgerufen',
+                data: { total_users: totalUsers }
+            };
+            res.json(response);
+        }
+        catch (error) {
+            console.error("Fehler bei getUserStats:", error);
+            const errorResponse = {
+                status: 'error',
+                message: 'Fehler beim Abrufen der Benutzeranzahl',
+                errorDetails: error.message
+            };
+            res.status(500).json(errorResponse);
+        }
+    }
 }
 exports.SystemController = SystemController;
