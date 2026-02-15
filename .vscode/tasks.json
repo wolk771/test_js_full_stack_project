@@ -1,0 +1,58 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "🚀 FULL START (Safe Mode)",
+      "dependsOrder": "sequence",
+      "dependsOn": [
+        "0. NPM Install",
+        "1. Start Containers",
+        "2. Wait for DB",
+        "3. Build Frontend", 
+        "4. Transpile Backend", 
+        "5. Start Backend"
+      ],
+      "group": { "kind": "build", "isDefault": true }
+    },
+    {
+      "label": "0. NPM Install",
+      "type": "shell",
+      "command": "npm install; cd frontend; npm install",
+      "presentation": { "reveal": "always", "panel": "dedicated" }
+    },
+    {
+      "label": "1. Start Containers",
+      "type": "shell",
+      "command": "podman compose -f docker-compose.yaml up -d",
+      "presentation": { "reveal": "always", "panel": "dedicated" }
+    },
+    {
+      "label": "2. Wait for DB",
+      "type": "shell",
+      "command": "echo 'Warte auf MySQL Start...'; sleep 15",
+      "presentation": { "reveal": "silent" }
+    },
+    {
+      "label": "3. Build Frontend",
+      "type": "shell",
+      "command": "npm run build",
+      "options": { "cwd": "${workspaceFolder}/frontend" },
+      "presentation": { "reveal": "always", "panel": "dedicated" }
+    },
+    {
+      "label": "4. Transpile Backend",
+      "type": "shell",
+      "command": "npx tsc",
+      "options": { "cwd": "${workspaceFolder}" },
+      "presentation": { "reveal": "always", "panel": "dedicated" }
+    },
+    {
+      "label": "5. Start Backend",
+      "type": "shell",
+      "command": "$env:NODE_ENV='production'; node dist/app.js; $env:NODE_ENV=''",
+      "options": { "cwd": "${workspaceFolder}" },
+      "presentation": { "reveal": "always", "panel": "dedicated", "focus": true }
+    }
+  ]
+}
+

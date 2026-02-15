@@ -22,3 +22,4 @@ services:
 # DAS HIER IST DAS "TOP LEVEL"
 volumes:
   db_fullstack_data:
+    name: mein_projekt_fester_speicher
