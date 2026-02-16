@@ -1,48 +1,55 @@
 import { Knex } from "knex";
 import bcrypt from "bcrypt";
-import dotenv from "dotenv";
-
-dotenv.config();
+import { ENV } from "../config/env";
 
 export async function up(knex: Knex): Promise<void> {
-    // 1. Rollen einfügen (Erweiterbar für spezifische App-Zwecke)
+    // 1. Rollen einfügen
     await knex("app_roles").insert([
-        { id: 1, role_name: 'ADMIN', permission_level: 100 },
-        { id: 2, role_name: 'USER', permission_level: 10 }
+        { role_name: 'ADMIN', permission_level: 100 }, 
+        { role_name: 'USER', permission_level: 10 }   
     ]);
 
-    // 2. Initial-Admin & Test-User (Nominale Grundausstattung)
-    const adminPass = await bcrypt.hash(process.env.INIT_ADMIN_PASS || 'admin123', 10);
-    const userPass = await bcrypt.hash(process.env.INIT_USER_PASS || 'user123', 10);
+    // 2. IDs der gerade erstellten Rollen dynamisch abrufen
+    const adminRole = await knex("app_roles").where({ role_name: 'ADMIN' }).first();
+    const userRole = await knex("app_roles").where({ role_name: 'USER' }).first();
 
-    // Admin anlegen
-    const [adminId] = await knex("app_users").insert({
-        nickname: process.env.INIT_ADMIN_NICK || 'InitialAdmin',
-        email: process.env.INIT_ADMIN_EMAIL || 'admin@example.com',
+    if (!adminRole || !userRole) {
+        throw new Error("❌ Kritischer Fehler: Rollen konnten nicht korrekt angelegt werden.");
+    }
+
+    // 3. Passwörter hashen
+    const adminPass = await bcrypt.hash(ENV.INIT_ADMIN_PASS, ENV.BCRYPT_ROUNDS);
+    const userPass = await bcrypt.hash(ENV.INIT_USER_PASS, ENV.BCRYPT_ROUNDS);
+
+    // 4. Initial-Admin anlegen
+    const [insertedAdminId] = await knex("app_users").insert({
+        nickname: ENV.INIT_ADMIN_NICK,
+        email: ENV.INIT_ADMIN_EMAIL,
         password_hash: adminPass,
         is_active: true
     });
+    const adminId = Number(insertedAdminId);
 
-    // Test-User anlegen
-    const [userId] = await knex("app_users").insert({
-        nickname: process.env.INIT_USER_NICK || 'TestUser',
-        email: process.env.INIT_USER_EMAIL || 'user@example.com',
+    // 5. Test-User anlegen
+    const [insertedUserId] = await knex("app_users").insert({
+        nickname: ENV.INIT_USER_NICK,
+        email: ENV.INIT_USER_EMAIL,
         password_hash: userPass,
         is_active: true
     });
+    const userId = Number(insertedUserId);
 
-    // Rollen zuweisen
+    // 6. Rollen zuweisen
     await knex("app_user_roles").insert([
-        { user_id: adminId, role_id: 1 }, // Admin zu ADMIN
-        { user_id: userId, role_id: 2 }  // User zu USER
+        { user_id: adminId, role_id: adminRole.id }, 
+        { user_id: userId, role_id: userRole.id }  
     ]);
 
-    console.log("✅ Nominale User & Rollen wurden via Migration angelegt.");
+    console.log("✅ Nominale User & Rollen wurden angelegt.");
 }
 
 export async function down(knex: Knex): Promise<void> {
-    // 3. Revert: Tabellen komplett leeren, um den Stand vor der Migration wiederherzustellen.
-    // Wegen der Fremdschlüssel löschen wir in der richtigen Reihenfolge.
+    // Wichtig: Wegen Foreign-Key-Constraints in der richtigen Reihenfolge
     await knex("app_user_roles").truncate();
     await knex("app_users").truncate();
     await knex("app_roles").truncate();

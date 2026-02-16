@@ -1,79 +1,59 @@
-import { useState, useEffect } from 'react';
-import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
+// frontend/src/App.jsx
+import { useState } from 'react';
+import { BrowserRouter, Routes, Route, Link, Navigate } from 'react-router-dom';
 import { AuthService } from './services/AuthService';
-import { apiRequest } from './utils/apiClient';
 import LoginForm from './components/LoginForm.comp.jsx';
-
-function Home() { 
-    return (
-        <div>
-            <h2>Frontend Home</h2>
-            <p>Dies ist ein öffentlicher Bereich.</p>
-        </div>
-    ); 
-}
-
-function Dashboard() { 
-    const [serverTime, setServerTime] = useState("");
-    const [userStats, setUserStats] = useState(null);
-
-    const fetchTime = async () => {
-        const result = await apiRequest('/api/server-time');
-        if (result.status === 'success') setServerTime(result.data.time);
-    };
-
-    const fetchUserStats = async () => {
-        try {
-            const result = await apiRequest('/api/user-stats');
-            if (result.status === 'success') setUserStats(result.data.total_users);
-        } catch (e) {
-            alert("Zugriff verweigert oder Fehler.");
-        }
-    };
-
-    return (
-        <>
-            <h2>Dashboard Bereich (Geschützt)</h2>
-            <p>Willkommen, {AuthService.getNickname()}!</p>
-            
-            <button onClick={fetchTime}>Serverzeit abfragen</button>
-            {serverTime && <p>Antwort: {serverTime}</p>}
-            
-            <hr />
-            {/* Dein neuer Button für die User-Stats */}
-            <button onClick={fetchUserStats} style={{ backgroundColor: '#e1f5fe' }}>
-                User-Statistik abfragen (Admin-Test)
-            </button>
-            {userStats !== null && <p>Registrierte User im System: {userStats}</p>}
-        </>
-    ); 
-}
+import { Home } from './components/Home.comp.jsx';
+import { Dashboard } from './components/Dashboard.comp.jsx';
 
 export default function App() {
     const [isLoggedIn, setIsLoggedIn] = useState(!!AuthService.getToken());
 
+    const handleLogout = () => {
+        AuthService.logout();
+        setIsLoggedIn(false);
+    };
+
     return (
         <BrowserRouter>
-            <nav style={{ padding: '10px', background: '#eee' }}>
-                <Link to="/">Home</Link> | <Link to="/dashboard">Dashboard</Link>
-                {isLoggedIn && (
-                    <button onClick={() => AuthService.logout()} style={{ marginLeft: '20px' }}>
-                        Abmelden
-                    </button>
+            <nav style={{ padding: '15px', background: '#2c3e50', color: 'white', display: 'flex', gap: '15px', alignItems: 'center' }}>
+                <Link to="/" style={{ color: 'white', textDecoration: 'none', fontWeight: 'bold' }}>🏠 Home</Link>
+                
+                {isLoggedIn ? (
+                    <>
+                        <Link to="/dashboard" style={{ color: '#3498db', textDecoration: 'none' }}>📊 Dashboard</Link>
+                        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            <span>👤 <b>{AuthService.getNickname()}</b> ({AuthService.getRole()})</span>
+                            <button onClick={handleLogout} style={{ cursor: 'pointer', padding: '5px 10px' }}>Abmelden</button>
+                        </div>
+                    </>
+                ) : (
+                    <div style={{ marginLeft: 'auto' }}>
+                        {/* Hier die Nachbesserung: "Bitte anmelden" führt zum Login-Formular */}
+                        <Link to="/login" style={{ color: '#f1c40f', textDecoration: 'none', fontWeight: 'bold' }}>🔑 Bitte anmelden</Link>
+                    </div>
                 )}
             </nav>
-            <hr />
 
-            {!isLoggedIn ? (
-                /* Falls nicht eingeloggt, zeigen wir auf jeder Seite das Login-Feld an */
-                <LoginForm onLoginSuccess={() => setIsLoggedIn(true)} />
-            ) : (
+            <div style={{ padding: '20px', maxWidth: '800px', margin: '0 auto' }}>
                 <Routes>
                     <Route path="/" element={<Home />} />
-                    <Route path="/dashboard" element={<Dashboard />} />
-                    <Route path="*" element={<h2>404 - Nicht gefunden</h2>} />
+                    
+                    {/* Login Route */}
+                    <Route 
+                        path="/login" 
+                        element={isLoggedIn ? <Navigate to="/dashboard" /> : <LoginForm onLoginSuccess={() => setIsLoggedIn(true)} />} 
+                    />
+
+                    {/* Dashboard Schutz */}
+                    <Route 
+                        path="/dashboard" 
+                        element={isLoggedIn ? <Dashboard /> : <Navigate to="/login" />} 
+                    />
+
+                    <Route path="*" element={<h2>404 - Seite nicht gefunden</h2>} />
                 </Routes>
-            )}
+            </div>
         </BrowserRouter>
     );
 }

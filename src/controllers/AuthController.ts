@@ -3,42 +3,81 @@ import { Knex } from 'knex';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { ApiResponse } from '../interfaces/ApiResponse';
+import { ENV } from '../config/env';
+import { UserRepository } from '../repositories/UserRepository';
 
 export class AuthController {
     public static async login(db: Knex, req: Request, res: Response): Promise<void> {
         try {
             const { email, password } = req.body;
 
-            // 1. User suchen
-            const user = await db('app_users').where({ email }).first();
-            if (!user) {
-                res.status(401).json({ status: 'error', message: 'Ungültige Zugangsdaten' });
+            // 1. Validierung
+            if (!email || !password) {
+                const response: ApiResponse = { status: 'error', message: 'E-Mail und Passwort erforderlich' };
+                res.status(400).json(response);
                 return;
             }
 
-            // 2. Passwort prüfen
+            // 2. User suchen
+            const user = await UserRepository.findByEmailWithRole(db, email);
+
+            // 3. Authentifizierung
+            if (!user) {
+                const response: ApiResponse = { status: 'error', message: 'Ungültige Zugangsdaten' };
+                res.status(401).json(response);
+                return;
+            }
+
             const isMatch = await bcrypt.compare(password, user.password_hash);
             if (!isMatch) {
-                res.status(401).json({ status: 'error', message: 'Ungültige Zugangsdaten' });
+                const response: ApiResponse = { status: 'error', message: 'Ungültige Zugangsdaten' };
+                res.status(401).json(response);
                 return;
             }
 
-            // 3. JWT Token erstellen (Gültig für 8 Stunden)
+            // 4. Status-Check
+            if (!user.is_active) {
+                const response: ApiResponse = { 
+                    status: 'error', 
+                    message: 'Ihr Account ist deaktiviert. Bitte kontaktieren Sie den Support.' 
+                };
+                res.status(403).json(response);
+                return;
+            }
+
+            // 5. JWT erstellen
             const token = jwt.sign(
-                { userId: user.id, email: user.email },
-                process.env.GEHEIMNIS || 'fallback_secret',
+                {
+                    userId: user.id,
+                    email: user.email,
+                    nickname: user.nickname || 'User',
+                    role: user.role_name,
+                    level: Number(user.permission_level)
+                },
+                ENV.GEHEIMNIS,
                 { expiresIn: '8h' }
             );
 
+            // 6. Erfolgreiche Antwort
             const response: ApiResponse = {
                 status: 'success',
                 message: 'Login erfolgreich',
-                data: { token, nickname: user.nickname }
+                data: {
+                    token,
+                    nickname: user.nickname,
+                    role: user.role_name
+                }
             };
             res.json(response);
 
         } catch (error: any) {
-            res.status(500).json({ status: 'error', message: error.message });
+            console.error("❌ Login Fehler:", error.message);
+            const response: ApiResponse = {
+                status: 'error',
+                message: 'Ein interner Fehler ist aufgetreten',
+                errorDetails: ENV.NODE_ENV === 'development' ? error.message : undefined
+            };
+            res.status(500).json(response);
         }
     }
 }
