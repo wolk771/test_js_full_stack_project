@@ -1,24 +1,74 @@
-import { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
+import { Response, NextFunction } from 'express';
+import jwt, { JwtPayload } from 'jsonwebtoken';
+import { AuthRequest } from '../interfaces/AuthRequest';
+import { ApiResponse } from '../interfaces/ApiResponse';
+import { ENV } from '../config/env';
 
-export const protect = (req: Request, res: Response, next: NextFunction) => {
-    let token;
-
-    // Token aus dem Header "Authorization: Bearer <token>" extrahieren
-    if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
-        token = req.headers.authorization.split(' ')[1];
+/**
+ * Prüft, ob die Anfrage von einem angemeldeten User kommt.
+ */
+export const protect = (req: AuthRequest, res: Response, next: NextFunction) => {
+    const authHeader = req.headers.authorization;
+    
+    // 1. Basis-Check des Authorization Headers
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        const response: ApiResponse = {
+            status: 'error',
+            message: 'Nicht autorisiert: Kein gültiges Token vorhanden'
+        };
+        return res.status(401).json(response);
     }
 
-    if (!token) {
-        return res.status(401).json({ status: 'error', message: 'Nicht autorisiert, kein Token' });
-    }
+    // 2. Token extrahieren
+    const token = authHeader.split(' ')[1];
 
     try {
-        const decoded = jwt.verify(token, process.env.GEHEIMNIS || 'fallback_secret');
-        // @ts-ignore - User-Daten an den Request anhängen
-        req.user = decoded;
+        // 3. Token verifizieren
+        const decoded = jwt.verify(token, ENV.GEHEIMNIS) as JwtPayload;
+
+        // 4. Vollständigkeits-Check aller benötigten Felder (Defensive Coding)
+        if (
+            !decoded || 
+            !decoded.userId || 
+            !decoded.email || 
+            !decoded.nickname || 
+            !decoded.role || 
+            decoded.level === undefined
+        ) {
+            throw new Error('Token-Inhalt unvollständig');
+        }
+
+        // 5. Dem Request-Objekt zuweisen
+        req.user = {
+            userId: Number(decoded.userId),
+            email: String(decoded.email),
+            nickname: String(decoded.nickname),
+            role: String(decoded.role),
+            level: Number(decoded.level)
+        };
+        
         next();
-    } catch (error) {
-        res.status(401).json({ status: 'error', message: 'Token ungültig' });
+    } catch (err) {
+        const response: ApiResponse = {
+            status: 'error',
+            message: 'Ungültiges oder abgelaufenes Token'
+        };
+        return res.status(401).json(response);
     }
+};
+
+/**
+ * Prüft, ob das Permission-Level des Users ausreicht.
+ */
+export const restrictToLevel = (minLevel: number) => {
+    return (req: AuthRequest, res: Response, next: NextFunction) => {
+        if (!req.user || req.user.level < minLevel) {
+            const response: ApiResponse = {
+                status: 'error',
+                message: 'Zugriff verweigert: Unzureichende Berechtigungen'
+            };
+            return res.status(403).json(response);
+        }
+        next();
+    };
 };

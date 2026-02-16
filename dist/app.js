@@ -36,10 +36,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const dotenv_1 = __importDefault(require("dotenv"));
+const env_1 = require("./config/env");
 const express_1 = __importStar(require("express"));
 const path_1 = __importDefault(require("path"));
 const knex_1 = __importDefault(require("knex"));
+const cors_1 = __importDefault(require("cors"));
 const knexConfig = require('../knexfile');
 const AuthService_1 = require("./services/AuthService");
 const SystemController_1 = require("./controllers/SystemController");
@@ -47,15 +48,45 @@ const DatabaseController_1 = require("./controllers/DatabaseController");
 const AuthController_1 = require("./controllers/AuthController");
 const authMiddleware_1 = require("./middleware/authMiddleware");
 const helmet_1 = __importDefault(require("helmet"));
-dotenv_1.default.config();
 const app = (0, express_1.default)();
-app.use((0, helmet_1.default)());
-const port = Number(process.env.PORT) || 3000;
-const environment = process.env.NODE_ENV || 'development';
-const db = (0, knex_1.default)(knexConfig[environment]);
+app.use((0, cors_1.default)({
+    origin: env_1.ENV.ALLOWED_ORIGINS,
+    credentials: true
+}));
+app.use((0, helmet_1.default)({
+    contentSecurityPolicy: {
+        directives: {
+            "default-src": ["'self'"],
+            "script-src": ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+            "style-src": ["'self'", "'unsafe-inline'"],
+            "img-src": ["'self'", "data:", "blob:"],
+            "connect-src": ["'self'"]
+        },
+    },
+    crossOriginResourcePolicy: { policy: "cross-origin" }
+}));
+app.use(express_1.default.json());
+app.use((err, _req, res, next) => {
+    if (err instanceof SyntaxError && 'body' in err) {
+        return res.status(400).json({ status: 'error', message: 'Ungültiges JSON-Format' });
+    }
+    next();
+});
+const port = env_1.ENV.PORT;
+const db = (0, knex_1.default)(knexConfig[env_1.ENV.NODE_ENV]);
 const api = (0, express_1.Router)();
-api.post('/login', express_1.default.json(), (req, res) => AuthController_1.AuthController.login(db, req, res));
+api.get('/check-auth', authMiddleware_1.protect, (req, res) => SystemController_1.SystemController.checkAuth(req, res));
+api.post('/login', (req, res) => AuthController_1.AuthController.login(db, req, res));
 api.get('/user-stats', authMiddleware_1.protect, (req, res) => SystemController_1.SystemController.getUserStats(db, req, res));
+api.get('/user-area', authMiddleware_1.protect, (req, res) => {
+    res.json({ status: 'success', message: `Hallo ${req.user?.nickname}, willkommen im User-Bereich.` });
+});
+api.get('/moderator-area', authMiddleware_1.protect, (0, authMiddleware_1.restrictToLevel)(50), (req, res) => {
+    res.json({ status: 'success', message: `Status: Moderator. Willkommen zurück, ${req.user?.nickname}!` });
+});
+api.get('/admin-area', authMiddleware_1.protect, (0, authMiddleware_1.restrictToLevel)(100), (req, res) => {
+    res.json({ status: 'success', message: `Kritischer Zugriff gewährt. Administrator: ${req.user?.nickname}.` });
+});
 api.get('/db-test', (req, res) => DatabaseController_1.DatabaseController.testConnection(db, req, res));
 api.get('/server-time', SystemController_1.SystemController.getServerTime);
 api.get('/test-env', SystemController_1.SystemController.testEnv);
@@ -76,9 +107,9 @@ db.migrate.latest()
         console.error('❌ Fehler beim Integritäts-Check:', authError);
         process.exit(1);
     }
-    console.log('🚀 Datenbank-Schema im Container ist aktuell.');
+    console.log(`🚀 Datenbank-Schema im Modus "${env_1.ENV.NODE_ENV}" ist aktuell.`);
     app.listen(port, () => {
-        console.log(`🌍 Server läuft auf http://localhost:${port}`);
+        console.log(`🌍 Server läuft auf http://localhost:${port} im ${env_1.ENV.NODE_ENV}-Modus`);
     });
 })
     .catch((err) => {
