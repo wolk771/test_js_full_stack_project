@@ -9,6 +9,7 @@ import { AuthService } from './services/AuthService';
 import { SystemController } from './controllers/SystemController';
 import { DatabaseController } from './controllers/DatabaseController';
 import { AuthController } from './controllers/AuthController';
+import { UserController } from './controllers/UserController';
 import { protect, restrictToLevel } from './middleware/authMiddleware';
 import { AuthRequest } from './interfaces/AuthRequest';
 import helmet from 'helmet';
@@ -63,6 +64,11 @@ api.post('/login', (req, res) => AuthController.login(db, req, res));
 
 // Geschützte Routen
 api.get('/user-stats', protect, (req: AuthRequest, res: Response) => SystemController.getUserStats(db, req, res));
+
+// Benutzerverwaltung (Mindestens Moderator-Level erforderlich)
+api.get('/users', protect, restrictToLevel(50), (req: AuthRequest, res: Response) => 
+    UserController.getAllUsers(db, req, res)
+);
 
 api.get('/user-area', protect, (req: AuthRequest, res: Response) => {
     res.json({ status: 'success', message: `Hallo ${req.user?.nickname}, willkommen im User-Bereich.` });

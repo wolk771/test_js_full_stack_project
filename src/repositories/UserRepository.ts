@@ -117,4 +117,24 @@ export class UserRepository {
         await db('app_user_roles').insert({ user_id: userId, role_id: roleId });
     }
 
+    /**
+     * Ruft alle Benutzer inklusive ihrer primären Rolleninformationen ab.
+     * @param db - Knex-Instanz.
+     * @returns Promise mit einer Liste von Benutzern und deren Rollen-Leveln.
+     */
+    public static async getAllUsers(db: Knex): Promise<any[]> {
+        return db('app_users as u')
+            .select(
+                'u.id',
+                'u.nickname',
+                'u.email',
+                'u.is_active',
+                'u.created_at',
+                'r.role_name',
+                'r.permission_level'
+            )
+            .leftJoin('app_user_roles as ur', 'u.id', 'ur.user_id')
+            .leftJoin('app_roles as r', 'ur.role_id', 'r.id')
+            .orderBy('u.id', 'asc');
+    }
 }

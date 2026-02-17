@@ -46,6 +46,7 @@ const AuthService_1 = require("./services/AuthService");
 const SystemController_1 = require("./controllers/SystemController");
 const DatabaseController_1 = require("./controllers/DatabaseController");
 const AuthController_1 = require("./controllers/AuthController");
+const UserController_1 = require("./controllers/UserController");
 const authMiddleware_1 = require("./middleware/authMiddleware");
 const helmet_1 = __importDefault(require("helmet"));
 const app = (0, express_1.default)();
@@ -78,6 +79,7 @@ const api = (0, express_1.Router)();
 api.get('/check-auth', authMiddleware_1.protect, (req, res) => SystemController_1.SystemController.checkAuth(req, res));
 api.post('/login', (req, res) => AuthController_1.AuthController.login(db, req, res));
 api.get('/user-stats', authMiddleware_1.protect, (req, res) => SystemController_1.SystemController.getUserStats(db, req, res));
+api.get('/users', authMiddleware_1.protect, (0, authMiddleware_1.restrictToLevel)(50), (req, res) => UserController_1.UserController.getAllUsers(db, req, res));
 api.get('/user-area', authMiddleware_1.protect, (req, res) => {
     res.json({ status: 'success', message: `Hallo ${req.user?.nickname}, willkommen im User-Bereich.` });
 });

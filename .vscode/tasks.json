@@ -8,8 +8,8 @@
         "0. NPM Install",
         "1. Start Containers",
         "2. Wait for DB",
-        "3. Build Frontend", 
-        "4. Transpile Backend", 
+        "3. Build Frontend (TSX)", 
+        "4. Transpile Backend (TS)", 
         "5. Start Backend"
       ],
       "group": { "kind": "build", "isDefault": true }
@@ -33,14 +33,15 @@
       "presentation": { "reveal": "silent" }
     },
     {
-      "label": "3. Build Frontend",
+      "label": "3. Build Frontend (TSX)",
       "type": "shell",
-      "command": "npm run build",
+      // Sicherstellen, dass tsc im Frontend läuft, falls es nicht im npm-script ist
+      "command": "npm run build", 
       "options": { "cwd": "${workspaceFolder}/frontend" },
       "presentation": { "reveal": "always", "panel": "dedicated" }
     },
     {
-      "label": "4. Transpile Backend",
+      "label": "4. Transpile Backend (TS)",
       "type": "shell",
       "command": "npx tsc",
       "options": { "cwd": "${workspaceFolder}" },
@@ -49,10 +50,10 @@
     {
       "label": "5. Start Backend",
       "type": "shell",
+      // PowerShell (windows) Syntax für Umgebungsvariablen
       "command": "$env:NODE_ENV='production'; node dist/app.js; $env:NODE_ENV=''",
       "options": { "cwd": "${workspaceFolder}" },
       "presentation": { "reveal": "always", "panel": "dedicated", "focus": true }
     }
   ]
 }
-
