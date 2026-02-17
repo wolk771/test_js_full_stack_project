@@ -2,6 +2,11 @@
 
 Dieses Projekt wurde als **intensives Lern- und Testprojekt** konzipiert, um die Grenzen von Node.js-Fullstack-Anwendungen in klassischen Shared-Hosting-Umgebungen (wie netcup/Plesk) zu erforschen.
 
+## Tech-Stack:
+- **Core:** Node.js (Express), React 18 (Vite), TypeScript.
+- **Database:** MySQL 8.4 LTS, Knex.js.
+- **DevOps/Infra:** Podman/Docker, Plesk Git-Automation, JWT Auth.
+
 ## 🎯 Projektziel & Motivation
 Das Ziel war es, innerhalb kürzester Zeit von Null auf ein professionelles Architektur-Niveau zu gelangen. 
 **Besonderer Fokus lag auf dem autodidaktischen Erlernen von:**
@@ -21,7 +26,10 @@ Das Projekt folgt dem Prinzip der **Separation of Concerns**:
 - **Frontend:** React (Vite). Das kompilierte Bundle wird im `public/`-Ordner des Backends ausgeliefert.
 - **Datenbank:** Knex.js als Query Builder & Migrations-Tool.
 - **Interfaces:** Zentraler Vertrag für API-Antworten in `src/interfaces/ApiResponse.ts`.
+- **Type Sharing:** Nutzung gemeinsamer Interfaces für Backend-Responses und Frontend-Models, um das Risiko von "Breaking Changes" bei API-Updates zu minimieren.
 - **Sicherheit:** JWT-basierte Authentifizierung mit einer `protect`-Middleware im Backend und einem `apiClient`-Wrapper im Frontend.
+- **Schema-Validierung:** Eingehende API-Requests werden gegen TypeScript-Interfaces (und ggf. Laufzeit-Validatoren) geprüft, um die Typsicherheit vom Frontend bis zur Datenbank zu gewährleisten.
+- **Zentrales Error-Handling:** Implementierung einer globalen Middleware, die zwischen operationalen Fehlern (z.B. Validierung) und programmatischen Fehlern unterscheidet, um keine Stack-Traces an den Client zu lecken.
 
 
 ## ⚙️ Build-Prozess & Pipeline
@@ -86,5 +94,12 @@ Um eine nahtlose User Experience zu gewährleisten, verfügt die API über einen
 *   **Fail-Fast Validierung:** Durch einen zentralen envValidator wird sichergestellt, dass die App bei fehlenden oder fehlerhaften Umgebungsvariablen (.env) sofort mit einer klaren Fehlermeldung abbricht, anstatt undefiniertes Verhalten in der Produktion zu zeigen.
 *   **RBAC & Permission Levels:** Die Implementierung unterscheidet strikt zwischen 401 (Unauthorized) für fehlende Identität und 403 (Forbidden) für unzureichende Berechtigungsstufen (Level 10, 50, 100).
 *   **Browser-Kompatibilität (Opera/Chromium):** Um restriktive Sicherheits-Updates moderner Browser zu unterstützen, wurde die Helmet-CSP (Content Security Policy) gezielt für das Zusammenspiel mit dem Vite-Build optimiert.
+* **Runtime-Adaption:** Die knexfile.js erkennt dynamisch, ob sie im Entwicklungsmodus (TS-Files via ts-node) oder im Produktionsmodus (JS-Files via node) ausgeführt wird, und passt die Migrations-Pfade entsprechend an.
+
+
+----
+
+# Status:
+ Der Prototyp ist voll funktionsfähig und dient als Blueprint für zukünftige Fullstack-Projekte, die eine schnelle Time-to-Market auf kosteneffizienten Shared-Hosting-Umgebungen erfordern.
 
 

@@ -43,5 +43,12 @@ class UserRepository {
     static async assignRole(db, userId, roleId) {
         await db('app_user_roles').insert({ user_id: userId, role_id: roleId });
     }
+    static async getAllUsers(db) {
+        return db('app_users as u')
+            .select('u.id', 'u.nickname', 'u.email', 'u.is_active', 'u.created_at', 'r.role_name', 'r.permission_level')
+            .leftJoin('app_user_roles as ur', 'u.id', 'ur.user_id')
+            .leftJoin('app_roles as r', 'ur.role_id', 'r.id')
+            .orderBy('u.id', 'asc');
+    }
 }
 exports.UserRepository = UserRepository;

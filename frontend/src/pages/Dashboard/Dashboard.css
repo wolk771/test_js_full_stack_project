@@ -1,0 +1,59 @@
+
+.dashboard-container {
+    width: 100%;
+}
+
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #eee;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+}
+
+.dashboard-grid {
+    display: grid;
+    /* Verhindert, dass die Karten zu schmal springen */
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.dashboard-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    border-top: 4px solid #bdc3c7; /* Standard Grau */
+}
+
+/* Rollen-Badges */
+.badge {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: bold;
+    color: white;
+}
+
+/* Level-basierte Farben */
+.level-10 { background-color: #3498db; border-color: #3498db; } /* User: Blau */
+.level-50 { background-color: #f39c12; border-color: #f39c12; } /* Mod: Orange */
+.level-100 { background-color: #e74c3c; border-color: #e74c3c; } /* Admin: Rot */
+
+.dashboard-card.highlight { border-top-color: #f39c12; }
+.dashboard-card.danger { border-top-color: #e74c3c; }
+
+.action-btn {
+    margin-top: 1rem;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    background: #2c3e50;
+    color: white;
+    transition: opacity 0.3s;
+}
+
+.action-btn:hover { opacity: 0.9; }
+.action-btn.admin { background: #c0392b; }
