@@ -13,6 +13,7 @@ import { UserController } from './controllers/UserController';
 import { protect, restrictToLevel } from './middleware/authMiddleware';
 import { AuthRequest } from './interfaces/AuthRequest';
 import helmet from 'helmet';
+import { SessionRepository } from './repositories/SessionRepository';
 
 const app = express();
 
@@ -61,12 +62,13 @@ api.get('/check-auth', protect, (req: AuthRequest, res: Response) => SystemContr
 
 // Auth
 api.post('/login', (req, res) => AuthController.login(db, req, res));
+api.post('/logout', protect, (req, res) => AuthController.logout(db, req, res));
 
 // Geschützte Routen
 api.get('/user-stats', protect, (req: AuthRequest, res: Response) => SystemController.getUserStats(db, req, res));
 
 // Benutzerverwaltung (Mindestens Moderator-Level erforderlich)
-api.get('/users', protect, restrictToLevel(50), (req: AuthRequest, res: Response) => 
+api.get('/users', protect, restrictToLevel(50), (req: AuthRequest, res: Response) =>
     UserController.getAllUsers(db, req, res)
 );
 
@@ -110,6 +112,9 @@ db.migrate.latest()
         }
 
         console.log(`🚀 Datenbank-Schema im Modus "${ENV.NODE_ENV}" ist aktuell.`);
+        
+        await SessionRepository.clearExpired(db);
+        console.log('🧹 Abgelaufene Sessions beim Systemstart bereinigt.');
 
         app.listen(port, () => {
             console.log(`🌍 Server läuft auf http://localhost:${port} im ${ENV.NODE_ENV}-Modus`);

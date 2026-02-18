@@ -7,7 +7,8 @@ import { ApiResponse } from '../types/ApiResponse';
  */
 export const apiRequest = async <T>(
     endpoint: string,
-    options: RequestInit = {}
+    options: RequestInit = {},
+    skipAutoLogout: boolean = false
 ): Promise<ApiResponse<T>> => {
 
     const token = authService.getToken();
@@ -29,10 +30,12 @@ export const apiRequest = async <T>(
         const response = await fetch(endpoint, { ...options, headers });
 
         // Automatisches Logout bei 401 (Unauthorized)
-        if (response.status === 401) {
+        // !skipAutoLogout -> Flag damit beim authService.logout()
+        // durch User eine Endlosschleife nicht zu reskieren 
+        if (response.status === 401 && !skipAutoLogout) {
             console.warn("Sitzung abgelaufen oder ungültig.");
             authService.logout();
-            // Wir werfen hier keinen Error, damit die UI den 401 Status verarbeiten kann
+            // hier keinen Error, damit die UI den 401 Status verarbeiten kann
         }
 
         const result: ApiResponse<T> = await response.json();

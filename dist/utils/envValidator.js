@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.validate = void 0;
+const constants_1 = require("./constants");
 exports.validate = {
     _checkExists: (key, value) => {
         if (value === undefined || value.trim().length === 0) {
@@ -48,5 +49,12 @@ exports.validate = {
             throw new Error(`❌ Konfigurationsfehler: "${key}" muss mindestens einen Wert enthalten (kommagetrennt).`);
         }
         return parts;
+    },
+    validateHoursMinutes: (key, value) => {
+        exports.validate._checkExists(key, value);
+        if (!constants_1.TIME_REGEX.HOURS_MINUTES.test(value)) {
+            throw new Error(`❌ Konfigurationsfehler: "${key}" erwartet Format 'Xh' oder 'Xm'.`);
+        }
+        return value;
     },
 };

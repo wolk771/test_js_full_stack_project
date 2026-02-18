@@ -7,6 +7,8 @@ exports.ENV = void 0;
 const envValidator_1 = require("../utils/envValidator");
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
+const timeUtils_1 = require("../utils/timeUtils");
+const tokenExpiresIn = envValidator_1.validate.validateHoursMinutes('AUTH_TOKEN_EXPIRES_IN', process.env.AUTH_TOKEN_EXPIRES_IN);
 exports.ENV = {
     NODE_ENV: envValidator_1.validate.choice('NODE_ENV', process.env.NODE_ENV, ['development', 'production']),
     PORT: envValidator_1.validate.number('PORT', process.env.PORT),
@@ -28,4 +30,8 @@ exports.ENV = {
     INIT_MOD_PASS: envValidator_1.validate.string('INIT_MOD_PASS', process.env.INIT_MOD_PASS),
     BCRYPT_ROUNDS: envValidator_1.validate.number('BCRYPT_ROUNDS', process.env.BCRYPT_ROUNDS),
     ALLOWED_ORIGINS: envValidator_1.validate.array('ALLOWED_ORIGINS', process.env.ALLOWED_ORIGINS),
+    AUTH_HASH_ALGO: envValidator_1.validate.choice('AUTH_HASH_ALGO', process.env.AUTH_HASH_ALGO, ['sha256', 'sha512']),
+    AUTH_HASH_ENCODING: envValidator_1.validate.choice('AUTH_HASH_ENCODING', process.env.AUTH_HASH_ENCODING, ['hex', 'base64']),
+    AUTH_TOKEN_EXPIRES_IN: tokenExpiresIn,
+    AUTH_SESSION_TTL_MS: timeUtils_1.TimeUtils.convertToMs(tokenExpiresIn),
 };

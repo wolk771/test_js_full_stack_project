@@ -49,6 +49,7 @@ const AuthController_1 = require("./controllers/AuthController");
 const UserController_1 = require("./controllers/UserController");
 const authMiddleware_1 = require("./middleware/authMiddleware");
 const helmet_1 = __importDefault(require("helmet"));
+const SessionRepository_1 = require("./repositories/SessionRepository");
 const app = (0, express_1.default)();
 app.use((0, cors_1.default)({
     origin: env_1.ENV.ALLOWED_ORIGINS,
@@ -78,6 +79,7 @@ const db = (0, knex_1.default)(knexConfig[env_1.ENV.NODE_ENV]);
 const api = (0, express_1.Router)();
 api.get('/check-auth', authMiddleware_1.protect, (req, res) => SystemController_1.SystemController.checkAuth(req, res));
 api.post('/login', (req, res) => AuthController_1.AuthController.login(db, req, res));
+api.post('/logout', authMiddleware_1.protect, (req, res) => AuthController_1.AuthController.logout(db, req, res));
 api.get('/user-stats', authMiddleware_1.protect, (req, res) => SystemController_1.SystemController.getUserStats(db, req, res));
 api.get('/users', authMiddleware_1.protect, (0, authMiddleware_1.restrictToLevel)(50), (req, res) => UserController_1.UserController.getAllUsers(db, req, res));
 api.get('/user-area', authMiddleware_1.protect, (req, res) => {
@@ -110,6 +112,8 @@ db.migrate.latest()
         process.exit(1);
     }
     console.log(`🚀 Datenbank-Schema im Modus "${env_1.ENV.NODE_ENV}" ist aktuell.`);
+    await SessionRepository_1.SessionRepository.clearExpired(db);
+    console.log('🧹 Abgelaufene Sessions beim Systemstart bereinigt.');
     app.listen(port, () => {
         console.log(`🌍 Server läuft auf http://localhost:${port} im ${env_1.ENV.NODE_ENV}-Modus`);
     });

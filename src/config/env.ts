@@ -1,6 +1,9 @@
 import { validate } from '../utils/envValidator';
 import dotenv from 'dotenv';
 dotenv.config();
+import { TimeUtils } from '../utils/timeUtils';
+
+const tokenExpiresIn = validate.validateHoursMinutes('AUTH_TOKEN_EXPIRES_IN', process.env.AUTH_TOKEN_EXPIRES_IN);
 
 // Alle neu benötigte Variablen aus der env-Datei hier einzutragen!
 export const ENV = {
@@ -36,4 +39,9 @@ export const ENV = {
 
     ALLOWED_ORIGINS: validate.array('ALLOWED_ORIGINS', process.env.ALLOWED_ORIGINS),
 
+    AUTH_HASH_ALGO: validate.choice('AUTH_HASH_ALGO', process.env.AUTH_HASH_ALGO, ['sha256', 'sha512']),
+    AUTH_HASH_ENCODING: validate.choice('AUTH_HASH_ENCODING', process.env.AUTH_HASH_ENCODING, ['hex', 'base64']),
+
+    AUTH_TOKEN_EXPIRES_IN: tokenExpiresIn,
+    AUTH_SESSION_TTL_MS: TimeUtils.convertToMs(tokenExpiresIn),
 };
