@@ -1,3 +1,5 @@
+import { TIME_REGEX } from './constants';
+
 export const validate = {
     // Interne Hilfsfunktion:
     _checkExists: (key: string, value: string | undefined) => {
@@ -53,6 +55,17 @@ export const validate = {
             throw new Error(`❌ Konfigurationsfehler: "${key}" muss mindestens einen Wert enthalten (kommagetrennt).`);
         }
         return parts;
+    },
+
+    /**
+     * Validiert Zeitangaben im Format 'Xh' oder 'Xm'
+     */
+    validateHoursMinutes: (key: string, value: string | undefined): string => {
+        validate._checkExists(key, value);
+        if (!TIME_REGEX.HOURS_MINUTES.test(value!)) {
+            throw new Error(`❌ Konfigurationsfehler: "${key}" erwartet Format 'Xh' oder 'Xm'.`);
+        }
+        return value!;
     },
 
 };

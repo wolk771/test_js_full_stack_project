@@ -31,7 +31,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             if (result.status === 'success' && result.data) {
                 const verifiedUser = result.data.user;
                 setUser(verifiedUser);
-                
+
                 // Synchronisierung der Metadaten für UI-Zwecke (nicht autoritativ)
                 sessionStorage.setItem('nickname', verifiedUser.nickname);
                 sessionStorage.setItem('role', verifiedUser.role);
@@ -59,12 +59,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     };
 
     /**
-     * Beendet die aktuelle Session und bereinigt alle sicherheitsrelevanten Speicher.
+     * Beendet die aktuelle Session und
+     * bereinigt alle sicherheitsrelevanten Speicher.
      */
-    const logout = (): void => {
-        authService.logout();
+    const logout = async (): Promise<void> => {
+        await authService.logout(); // Jetzt mit await
         setUser(null);
     };
+
 
     /**
      * Initialer Lifecycle-Hook zur Wiederherstellung bestehender Sessions.
