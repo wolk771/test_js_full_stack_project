@@ -44,4 +44,6 @@ export const ENV = {
 
     AUTH_TOKEN_EXPIRES_IN: tokenExpiresIn,
     AUTH_SESSION_TTL_MS: TimeUtils.convertToMs(tokenExpiresIn),
+
+    SERVER_HOST: validate.string('SERVER_HOST', process.env.SERVER_HOST),
 };
