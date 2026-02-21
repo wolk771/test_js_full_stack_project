@@ -1,7 +1,7 @@
 services:
   db:
-    image: mysql:8.4  # Fixierte Long-Term-Support Version
-    container_name: test-fullstack-js-db
+    image: mysql:8.4
+    container_name: fullstack-db
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
       MYSQL_DATABASE: ${DB_NAME}
@@ -10,16 +10,43 @@ services:
     ports:
       - "3306:3306"
     volumes:
-      # Dieser Name MUSS unten unter 'volumes:' stehen
       - db_fullstack_data:/var/lib/mysql
+
+  backend:
+    # IMMER NEU BILDEN
+    # build: .
+    # Ändere 'build: .' zu 'image: mein-projekt'
+    # podman build --format docker -t mein-projekt .
+    # podman build -t localhost/mein-projekt:latest .
+    # podman-compose up -d
+    image: localhost/mein-projekt:latest
+    # HALB AUTOMATISCH
+    # podman-compose up --build
+    # podman-compose up -d --build
+    # build: .                           # HIER: "Schau in diesen Ordner und nutze das Dockerfile"
+    # image: localhost/mein-projekt:v1   # HIER: "Name für fertiges Image"
+    container_name: fullstack-app
+     # neu Bilden
+    # HIER DIE DATEI ANMELDEN:
+    env_file:
+      - .env
+    ports:
+      - "3000:3000"
+    environment:
+      - DB_HOST=db
+      - DB_USER=${DB_USER}
+      - DB_PASS=${DB_PASS}
+      - DB_NAME=${DB_NAME}
+      - DB_PORT=3306
+      - NODE_ENV=production
+    depends_on:
+      - db
 
   adminer:
     image: adminer
-    container_name: test-fullstack-js-adminer
+    container_name: fullstack-adminer
     ports:
       - "8080:8080"
 
-# DAS HIER IST DAS "TOP LEVEL"
 volumes:
   db_fullstack_data:
-    name: mein_projekt_fester_speicher

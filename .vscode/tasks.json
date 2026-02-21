@@ -23,7 +23,7 @@
     {
       "label": "1. Start Containers",
       "type": "shell",
-      "command": "podman compose -f docker-compose.yaml up -d",
+      "command": "podman compose -f docker-compose-orig.yaml up -d",
       "presentation": { "reveal": "always", "panel": "dedicated" }
     },
     {
