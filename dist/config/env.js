@@ -34,4 +34,5 @@ exports.ENV = {
     AUTH_HASH_ENCODING: envValidator_1.validate.choice('AUTH_HASH_ENCODING', process.env.AUTH_HASH_ENCODING, ['hex', 'base64']),
     AUTH_TOKEN_EXPIRES_IN: tokenExpiresIn,
     AUTH_SESSION_TTL_MS: timeUtils_1.TimeUtils.convertToMs(tokenExpiresIn),
+    SERVER_HOST: envValidator_1.validate.string('SERVER_HOST', process.env.SERVER_HOST),
 };

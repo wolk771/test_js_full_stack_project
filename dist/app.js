@@ -50,6 +50,7 @@ const UserController_1 = require("./controllers/UserController");
 const authMiddleware_1 = require("./middleware/authMiddleware");
 const helmet_1 = __importDefault(require("helmet"));
 const SessionRepository_1 = require("./repositories/SessionRepository");
+const swagger_1 = require("./swagger");
 const app = (0, express_1.default)();
 app.use((0, cors_1.default)({
     origin: env_1.ENV.ALLOWED_ORIGINS,
@@ -60,8 +61,8 @@ app.use((0, helmet_1.default)({
         directives: {
             "default-src": ["'self'"],
             "script-src": ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
-            "style-src": ["'self'", "'unsafe-inline'"],
-            "img-src": ["'self'", "data:", "blob:"],
+            "style-src": ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+            "img-src": ["'self'", "data:", "blob:", "https://validator.swagger.io"],
             "connect-src": ["'self'"]
         },
     },
@@ -76,6 +77,7 @@ app.use((err, _req, res, next) => {
 });
 const port = env_1.ENV.PORT;
 const db = (0, knex_1.default)(knexConfig[env_1.ENV.NODE_ENV]);
+(0, swagger_1.setupSwagger)(app);
 const api = (0, express_1.Router)();
 api.get('/check-auth', authMiddleware_1.protect, (req, res) => SystemController_1.SystemController.checkAuth(req, res));
 api.post('/login', (req, res) => AuthController_1.AuthController.login(db, req, res));

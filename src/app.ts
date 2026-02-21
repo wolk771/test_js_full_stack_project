@@ -14,6 +14,7 @@ import { protect, restrictToLevel } from './middleware/authMiddleware';
 import { AuthRequest } from './interfaces/AuthRequest';
 import helmet from 'helmet';
 import { SessionRepository } from './repositories/SessionRepository';
+import { setupSwagger } from './swagger';
 
 const app = express();
 
@@ -25,18 +26,20 @@ app.use(cors({
 
 
 // 3. HELMET ANPASSUNG (Damit Vite-Inlines nicht blockiert werden)
-app.use(helmet({
+app.use(helmet(
+    {
     contentSecurityPolicy: {
         directives: {
             "default-src": ["'self'"],
-            "script-src": ["'self'", "'unsafe-inline'", "'unsafe-eval'"], // Erlaubt Vite Scripte
-            "style-src": ["'self'", "'unsafe-inline'"],
-            "img-src": ["'self'", "data:", "blob:"],
-            "connect-src": ["'self'"] // Wichtig für deine API-Calls
+            "script-src": ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+            "style-src": ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+            "img-src": ["'self'", "data:", "blob:", "https://validator.swagger.io"], // Erlaubt Swagger-Icons
+            "connect-src": ["'self'"]
         },
     },
     crossOriginResourcePolicy: { policy: "cross-origin" }
-}));
+}
+));
 
 // 4. GLOBALE MIDDLEWARE
 app.use(express.json());
@@ -53,6 +56,12 @@ const port: number = ENV.PORT;
 
 // 5. KNEX INITIALISIERUNG
 const db = knex(knexConfig[ENV.NODE_ENV]);
+
+// SWAGGER EINBINDEN (VOR DEN ROUTEN)
+//app.use('/src/swagger.json', cors());
+
+
+setupSwagger(app); 
 
 // 6. API-ROUTING
 const api: Router = Router();

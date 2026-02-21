@@ -11,7 +11,8 @@
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.3",
     "knex": "^3.1.0",
-    "mysql2": "^3.17.0"
+    "mysql2": "^3.17.0",
+    "swagger-ui-express": "^5.0.1"
   },
   "scripts": {
     "start": "node app.js",
@@ -28,7 +29,8 @@
     "@types/dotenv": "^6.1.1",
     "@types/express": "^5.0.6",
     "@types/jsonwebtoken": "^9.0.10",
-    "@types/node": "^25.2.3",
+    "@types/node": "^25.3.0",
+    "@types/swagger-ui-express": "^4.1.8",
     "nodemon": "^3.1.11",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
