@@ -15,14 +15,18 @@ export const FastAPITest: React.FC = () => {
     const callFastApiAuth = async (path: string) => {
         setChartUrl(null);
         setDebugInfoExclusiv(null);
-        const result = await apiRequest<any>(`${fastApiUrl}${path}`);
+        // true -> Sichtbarkeit von Errors bei unangemeldeten Users
+        //  bei 401 -> also nicht zum Login
+        const result = await apiRequest<any>(`${fastApiUrl}${path}`, {}, true);
         setDebugInfo(result);
     };
 
     const callFastApiExclusiv = async (path: string) => {
         setChartUrl(null);
         setDebugInfo(null);
-        const result = await apiRequest<any>(`${fastApiUrl}${path}`);
+        // true -> Sichtbarkeit von Errors bei unangemeldeten Users
+        // bei 401 -> also nicht zum Login
+        const result = await apiRequest<any>(`${fastApiUrl}${path}`, {}, true);
         setDebugInfoExclusiv(result);
     };
 

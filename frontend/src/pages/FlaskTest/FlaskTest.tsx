@@ -17,7 +17,9 @@ export const FlaskTest: React.FC = () => {
         setChartUrl(null);
         setDebugInfoExclusiv(null);
         // Nutzt apiRequest, muss aber die volle Flask-URL übergeben
-        const result = await apiRequest<any>(`${flaskUrl}${path}`);
+        // true -> Sichtbarkeit von Errors bei unangemeldeten Users
+        // bei 401 -> also nicht zum Login
+        const result = await apiRequest<any>(`${flaskUrl}${path}`, {}, true);
         setDebugInfo(result);
     };
 
@@ -25,7 +27,9 @@ export const FlaskTest: React.FC = () => {
         setChartUrl(null);
         setDebugInfo(null);
         // Nutzt apiRequest, muss aber die volle Flask-URL übergeben
-        const result = await apiRequest<any>(`${flaskUrl}${path}`);
+        // true -> Sichtbarkeit von Errors bei unangemeldeten Users
+        // bei 401 -> also nicht zum Login
+        const result = await apiRequest<any>(`${flaskUrl}${path}`, {}, true);
         setDebugInfoExclusiv(result);
     };
 
