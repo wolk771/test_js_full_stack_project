@@ -1,6 +1,7 @@
 import React from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { UserTable } from '../../components/UserTable/UserTable'; // NEU: Import der Tabelle
+import { useConfig } from '../../context/ConfigContext';
 import './Dashboard.css';
 
 /**
@@ -9,6 +10,7 @@ import './Dashboard.css';
  */
 export const Dashboard: React.FC = () => {
     const { user } = useAuth();
+    const { config } = useConfig(); // Zugriff auf Service-URLs
 
     return (
         <div className="dashboard-container">
@@ -21,7 +23,23 @@ export const Dashboard: React.FC = () => {
             </header>
 
             <div className="dashboard-grid">
-                {/* --- Modul: Profil (Öffentlich für alle Authentifizierten) --- */}
+                {/* Modul Integrations-Status (Sichtbar für alle Auth-User) */}
+                <section className="dashboard-card status-card">
+                    <h3>📡 Service-Status</h3>
+                    <div className="status-item">
+                        <span>Flask (Analytics):</span> 
+                        <span className={config?.services.flask ? 'online' : 'offline'}>
+                            {config?.services.flask ? ' Verbunden' : ' Verbindung fehlt'}
+                        </span>
+                    </div>
+                    <div className="status-item">
+                        <span>FastAPI (Data):</span> 
+                        <span className={config?.services.fastAPI ? 'online' : 'offline'}>
+                            {config?.services.fastAPI ? ' Verbunden' : ' Verbindung fehlt'}
+                        </span>
+                    </div>
+                </section>
+                 {/* --- Modul: Profil (Öffentlich für alle Authentifizierten) --- */}
                 <section className="dashboard-card">
                     <h3>👤 Profil-Übersicht</h3>
                     <p><strong>Nickname:</strong> {user?.nickname}</p>

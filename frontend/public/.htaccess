@@ -25,7 +25,11 @@ RewriteCond %{REQUEST_FILENAME} -d
 RewriteRule ^ - [L]
 
 # Ignoriere alles, was mit /api beginnt (Lass Node.js entscheiden)
-RewriteRule ^api - [L]
+# RewriteRule ^api/ - [L]
+
+# 2. AUSNAHMEN: Diese Pfade NICHT an React senden (Node.js übernimmt)
+# alles, was mit /api/ ODER /api-docs beginnt
+RewriteRule ^(api/|api-docs) - [L]
 
 # Alles andere an die index.html für React-Routing
 RewriteRule ^ index.html [L]

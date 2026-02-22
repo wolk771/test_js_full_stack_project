@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ENV = void 0;
+exports.publicConfig = exports.ENV = void 0;
 const envValidator_1 = require("../utils/envValidator");
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
@@ -35,4 +35,13 @@ exports.ENV = {
     AUTH_TOKEN_EXPIRES_IN: tokenExpiresIn,
     AUTH_SESSION_TTL_MS: timeUtils_1.TimeUtils.convertToMs(tokenExpiresIn),
     SERVER_HOST: envValidator_1.validate.string('SERVER_HOST', process.env.SERVER_HOST),
+    PYTHON_FLASK_URL: envValidator_1.validate.string('PYTHON_FLASK_URL', process.env.PYTHON_FLASK_URL),
+    PYTHON_FASTAPI_URL: envValidator_1.validate.string('PYTHON_FASTAPI_URL', process.env.PYTHON_FASTAPI_URL),
+};
+exports.publicConfig = {
+    services: {
+        flask: exports.ENV.PYTHON_FLASK_URL,
+        fastAPI: exports.ENV.PYTHON_FASTAPI_URL
+    },
+    apiVersion: "1.0.0"
 };

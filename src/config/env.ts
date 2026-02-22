@@ -46,4 +46,23 @@ export const ENV = {
     AUTH_SESSION_TTL_MS: TimeUtils.convertToMs(tokenExpiresIn),
 
     SERVER_HOST: validate.string('SERVER_HOST', process.env.SERVER_HOST),
+
+    // Python Service Integration
+    PYTHON_FLASK_URL: validate.string('PYTHON_FLASK_URL', process.env.PYTHON_FLASK_URL),
+    PYTHON_FASTAPI_URL: validate.string('PYTHON_FASTAPI_URL', process.env.PYTHON_FASTAPI_URL),
+
 };
+
+/**
+ * Whitelist der Konfigurationen, die sicher an das React-Frontend 
+ * übertragen werden dürfen. Enthält keine Geheimnisse.
+ */
+export const publicConfig = {
+    services: {
+        flask: ENV.PYTHON_FLASK_URL,
+        fastAPI: ENV.PYTHON_FASTAPI_URL
+    },
+    // Die Version hilft dem Frontend zu prüfen, ob es mit 
+    // der API-Struktur noch kompatibel ist.
+    apiVersion: "1.0.0"
+} as const; // 'as const' macht das Objekt in TS schreibgeschützt
