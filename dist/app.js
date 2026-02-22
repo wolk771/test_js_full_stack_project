@@ -51,6 +51,7 @@ const authMiddleware_1 = require("./middleware/authMiddleware");
 const helmet_1 = __importDefault(require("helmet"));
 const SessionRepository_1 = require("./repositories/SessionRepository");
 const swagger_1 = require("./swagger");
+const ConfigController_1 = require("./controllers/ConfigController");
 const app = (0, express_1.default)();
 app.use((0, cors_1.default)({
     origin: env_1.ENV.ALLOWED_ORIGINS,
@@ -62,8 +63,9 @@ app.use((0, helmet_1.default)({
             "default-src": ["'self'"],
             "script-src": ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
             "style-src": ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
-            "img-src": ["'self'", "data:", "blob:", "https://validator.swagger.io"],
-            "connect-src": ["'self'"]
+            "img-src": ["'self'", "data:", "blob:", env_1.ENV.PYTHON_FLASK_URL, env_1.ENV.PYTHON_FASTAPI_URL,
+                "https://validator.swagger.io"],
+            "connect-src": ["'self'", env_1.ENV.PYTHON_FLASK_URL, env_1.ENV.PYTHON_FASTAPI_URL]
         },
     },
     crossOriginResourcePolicy: { policy: "cross-origin" }
@@ -97,6 +99,7 @@ api.get('/db-test', (req, res) => DatabaseController_1.DatabaseController.testCo
 api.get('/server-time', SystemController_1.SystemController.getServerTime);
 api.get('/test-env', SystemController_1.SystemController.testEnv);
 api.get('/', SystemController_1.SystemController.getStatus);
+app.get('/api/integration/setup', ConfigController_1.ConfigController.getIntegrationSetup);
 app.use('/api', api);
 const publicPath = path_1.default.join(__dirname, '..', 'public');
 app.use(express_1.default.static(publicPath));

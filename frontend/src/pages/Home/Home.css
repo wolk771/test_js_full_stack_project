@@ -42,3 +42,82 @@
     color: #3498db;
     margin-bottom: 0.5rem;
 }
+
+.integration-preview {
+    margin: 30px 0;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    text-align: center;
+}
+
+.tech-stack-img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+
+.service-card {
+    border-top: 4px solid #3776ab; /* Python-Blau */
+}
+
+.service-link {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 8px 12px;
+    background-color: #3776ab;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    font-size: 0.9rem;
+}
+
+.service-link:hover {
+    background-color: #3178c6;
+}
+
+.card-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    color: #aaa;
+}
+
+.card-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.btn-internal, .btn-external {
+    padding: 8px 12px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-size: 0.85rem;
+    transition: 0.3s;
+}
+
+.btn-internal {
+    background: #3178c6; /* TS Blau */
+    color: white;
+}
+
+.btn-external {
+    border: 1px solid #444;
+    color: #ccc;
+}
+
+.btn-internal:hover { background: #265a94; }
+.btn-external:hover { background: #333; color: white; }
+
+.architecture-chart {
+    max-width: 600px;
+    width: 100%;
+    filter: drop-shadow(0 0 10px rgba(0,0,0,0.5));
+}
+

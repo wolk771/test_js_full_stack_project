@@ -15,6 +15,7 @@ import { AuthRequest } from './interfaces/AuthRequest';
 import helmet from 'helmet';
 import { SessionRepository } from './repositories/SessionRepository';
 import { setupSwagger } from './swagger';
+import { ConfigController } from './controllers/ConfigController';
 
 const app = express();
 
@@ -33,8 +34,11 @@ app.use(helmet(
             "default-src": ["'self'"],
             "script-src": ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
             "style-src": ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
-            "img-src": ["'self'", "data:", "blob:", "https://validator.swagger.io"], // Erlaubt Swagger-Icons
-            "connect-src": ["'self'"]
+            // Img für Flask und FastApi auch erlauben
+            "img-src": ["'self'", "data:", "blob:", ENV.PYTHON_FLASK_URL, ENV.PYTHON_FASTAPI_URL,
+                 "https://validator.swagger.io"], // Erlaubt Swagger-Icons
+            // Flask und FastApi hier erlauben
+            "connect-src": ["'self'", ENV.PYTHON_FLASK_URL, ENV.PYTHON_FASTAPI_URL]
         },
     },
     crossOriginResourcePolicy: { policy: "cross-origin" }
@@ -98,6 +102,8 @@ api.get('/db-test', (req, res) => DatabaseController.testConnection(db, req, res
 api.get('/server-time', SystemController.getServerTime);
 api.get('/test-env', SystemController.testEnv); // Nutzt jetzt die Logik im Controller
 api.get('/', SystemController.getStatus);
+
+app.get('/api/integration/setup', ConfigController.getIntegrationSetup);
 
 app.use('/api', api);
 
